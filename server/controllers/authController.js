@@ -24,6 +24,13 @@ const registerUser = async (req, res) => {
         throw new Error('User Already Exist!')
     }
 
+    // Check Phone
+    if (phone.length !== 10) {
+        res.status(409)
+        throw new Error('Please Add Valid Phone Number!')
+    }
+
+
     // Hash Password
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt)

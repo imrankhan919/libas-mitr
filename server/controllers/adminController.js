@@ -14,8 +14,22 @@ const getAllUsers = async (req, res) => {
 }
 
 
+const addProduct = async (req, res) => {
+    res.send("Product Added!")
+}
 
-const adminControllers = { getAllUsers }
+const updateProduct = async (req, res) => {
+    res.send("Product Updated!")
+}
+
+const updateOrder = async (req, res) => {
+    res.send("Order Updated!")
+}
+
+
+
+
+const adminControllers = { getAllUsers, addProduct, updateProduct, updateOrder }
 
 
 export default adminControllers
