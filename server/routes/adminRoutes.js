@@ -3,6 +3,7 @@ import express from "express"
 // local imports
 import adminControllers from "../controllers/adminController.js"
 import protect from "../middlewares/authMiddleware.js"
+import upload from "../middlewares/fileUploadMiddleware.js"
 
 const router = express.Router()
 
@@ -10,10 +11,14 @@ const router = express.Router()
 router.get("/users", protect.forAdmin, adminControllers.getAllUsers)
 
 // For Products
-router.post("/product/add", protect.forAdmin, adminControllers.addProduct)
-router.put("/product/:id", protect.forAdmin, adminControllers.updateProduct)
+router.post("/product/add", protect.forAdmin, upload.single("image"), adminControllers.addProduct)
+router.put("/product/:pid", protect.forAdmin, adminControllers.updateProduct)
 
 // For Order
+router.get("/orders", protect.forAdmin, adminControllers.getAllOrders)
 router.put("/order/:oid", protect.forAdmin, adminControllers.updateOrder)
+
+// For Reviews
+router.get("/reviews", protect.forAdmin, adminControllers.getAllReviews)
 
 export default router
