@@ -2,7 +2,8 @@ import Cart from "../models/cartModel.js"
 import User from "../models/userModel.js"
 
 const getCart = async (req, res) => {
-    const cart = await Cart.findOne({ user: req.user.id })
+
+    const cart = await Cart.find({ user: req.user.id })
         .populate({
             path: 'user',
             select: '-password' // exclude password for security
@@ -33,6 +34,17 @@ const addCart = async (req, res) => {
         throw new Error("Please Fill All Details!")
     }
 
+
+
+    //    Check if we have cart already 
+    const cartExist = await Cart.findOne({ user: req.user.id })
+
+    if (cartExist) {
+        res.status(409)
+        throw new Error('Cart Already Exists!')
+    }
+
+
     let cart = {
         user: req.user.id,
         products: [
@@ -53,7 +65,20 @@ const addCart = async (req, res) => {
 }
 
 const updateCart = async (req, res) => {
-    res.send("Your Cart Updated...")
+
+    const { product, qty } = req.body
+
+    if (!product || !qty) {
+        res.status(409)
+        throw new Error("Please Fill All Details!")
+    }
+
+    //    Check if we have cart already 
+
+
+
+
+    res.json(existingCart)
 }
 
 const removeCart = async (req, res) => {
