@@ -4,6 +4,8 @@ import Product from "../models/productModel.js"
 const getCart = async (req, res) => {
     const userId = req.user._id;
 
+
+
     const cart = await Cart.findOne({ user: userId })
         .populate('products.product');
 
@@ -12,6 +14,8 @@ const getCart = async (req, res) => {
             products: []
         });
     }
+
+
 
     res.status(200).json(cart);
 
