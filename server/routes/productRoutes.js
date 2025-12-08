@@ -10,7 +10,14 @@ router.get("/", productController.getProducts)
 router.get("/:pid", productController.getProduct)
 
 
-router.use("/:pid/review", reviewRoute)
+// Add Product Id
+const addProductId = (req, res, next) => {
+    req.product = req.params.pid
+    next()
+}
+
+
+router.use("/:pid/review", addProductId, reviewRoute)
 
 
 export default router
