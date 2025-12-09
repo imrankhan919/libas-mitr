@@ -2,7 +2,8 @@ import Order from "../models/orderModal.js"
 import Review from "../models/reviewModel.js"
 
 const getReviews = async (req, res) => {
-    let reviews = await Review.find({ product: req.params.pid })
+    const productId = req.product
+    let reviews = await Review.find({ product: productId })
 
     if (!reviews) {
         res.status(404)

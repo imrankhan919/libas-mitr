@@ -136,10 +136,20 @@ const createCoupon = async (req, res) => {
 
 }
 
+const getCoupons = async (req, res) => {
+    const coupons = await Coupan.find()
+
+    if (!coupons) {
+        res.status(404)
+        throw new Error("Coupons Not Found!")
+    }
+
+    res.status(200).json(coupons)
+
+}
 
 
-
-const adminControllers = { getAllUsers, addProduct, updateProduct, updateOrder, getAllOrders, getAllReviews, createCoupon }
+const adminControllers = { getAllUsers, addProduct, updateProduct, updateOrder, getAllOrders, getAllReviews, createCoupon, getCoupons }
 
 
 export default adminControllers
