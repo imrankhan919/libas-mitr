@@ -1,3 +1,5 @@
+import fs from "node:fs"
+import uploadToCloudinary from "../middlewares/cloudinaryMiddleware.js"
 import Coupan from "../models/coupanModel.js"
 import Order from "../models/orderModal.js"
 import Product from "../models/productModel.js"
@@ -20,31 +22,41 @@ const getAllUsers = async (req, res) => {
 
 const addProduct = async (req, res) => {
 
-    const { name, description, originalPrice, salePrice, stock, category, size } = req.body
+    try {
+        const { name, description, originalPrice, salePrice, stock, category, size } = req.body
 
-    if (!name || !description || !originalPrice || !salePrice || !stock || !category || !size) {
-        res.status(409)
-        throw new Error('Please Fill All Details!')
-    }
+        if (!name || !description || !originalPrice || !salePrice || !stock || !category || !size) {
+            res.status(409)
+            throw new Error('Please Fill All Details!')
+        }
 
-    //    Todo : Cloudniary Setup is pending
+        //   Upload To Cloudinary
+        let imagePath = await uploadToCloudinary(req.file.path)
 
-    const product = await Product.create({
-        name,
-        description,
-        size,
-        originalPrice,
-        salePrice,
-        stock,
-        category,
-        image: req.file.path
-    })
+        // Remove image from our server
+        fs.unlinkSync(req.file.path)
 
-    if (!product) {
-        res.status(409)
+        const product = await Product.create({
+            name,
+            description,
+            size,
+            originalPrice,
+            salePrice,
+            stock,
+            category,
+            image: imagePath.secure_url
+        })
+
+        if (!product) {
+            res.status(409)
+            throw new Error('Product Not Created!')
+        } else {
+            res.status(201).json(product)
+        }
+    } catch (error) {
+        fs.unlinkSync(req?.file?.path)
+        res.status(500)
         throw new Error('Product Not Created!')
-    } else {
-        res.status(201).json(product)
     }
 
 }
