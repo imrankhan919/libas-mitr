@@ -6,11 +6,22 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    cart: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Cart',
-        required: true
-    },
+    products: [
+        {
+            product: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product",
+                required: true
+            },
+            qty: {
+                type: Number,
+                required: true,
+                min: [1, "Quantity cannot be less than 1"],
+                default: 1
+            },
+            _id: false // Prevents MongoDB from creating _id for subdocuments
+        }
+    ],
     totalBillAmount: {
         type: Number,
         required: true
@@ -28,6 +39,10 @@ const orderSchema = new mongoose.Schema({
         enum: ["placed", "dispatched", "cancelled", "delivered"],
         default: "placed",
         required: true
+    },
+    shippingAddress: {
+        type: String,
+        required: [true, "Please Enter Shipping Address"]
     }
 
 }, {

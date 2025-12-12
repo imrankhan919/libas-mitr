@@ -1,10 +1,17 @@
 import Cart from "../models/cartModel.js";
 import Coupan from "../models/coupanModel.js";
 import Order from "../models/orderModal.js";
-import cartController from "./cartController.js";
+
 
 const placeOrder = async (req, res) => {
     const userId = req.user._id;
+
+    let { shippingAddress } = req.body
+
+    if (!shippingAddress) {
+        res.status(409)
+        throw new Error("Please Provide Shipping Address")
+    }
 
     // Find If Coupon Exists
     let couponCode = await Coupan.findOne({ coupanCode: req.body?.coupon })
@@ -12,6 +19,8 @@ const placeOrder = async (req, res) => {
     // Find Cart
     const cart = await Cart.findOne({ user: userId })
         .populate('products.product');
+
+
 
     if (!cart) {
         res.status(404)
@@ -28,10 +37,11 @@ const placeOrder = async (req, res) => {
 
     const order = new Order({
         user: userId,
-        cart: cart,
+        products: cart.products,
         totalBillAmount: totalBill,
         isDiscounted: couponCode ? true : false,
         coupon: couponCode ? couponCode._id : null,
+        shippingAddress: shippingAddress
     })
 
 
@@ -47,6 +57,8 @@ const placeOrder = async (req, res) => {
     // If ordered clear the cart
     await cart.deleteOne();
     res.status(201).json(order)
+
+
 }
 
 const cancelOrder = async (req, res) => {
@@ -82,7 +94,9 @@ const getOrders = async (req, res) => {
 
     const userId = req.user._id
 
-    const myOrders = await Order.find({ user: userId }).populate('cart').populate('user')
+    const myOrders = await Order.find({ user: userId }).populate('products.product').populate('user')
+
+
 
     if (!myOrders) {
         res.status(404)
@@ -97,20 +111,15 @@ const getOrder = async (req, res) => {
     const orderId = req.params.oid
 
     try {
-        const myOrder = await Order.findById(orderId).populate('cart').populate('user')
+        const myOrder = await Order.findById(orderId).populate('products.product').populate('user')
 
         if (!myOrder) {
             res.status(404)
             throw new Error('Order Not Found!')
         }
 
-        const cart = await Cart.findById(myOrder.cart._id)
-
-        await cart.populate("products.product")
-
-
         res.status(200).json({
-            myOrder, cart
+            myOrder
         })
     } catch (error) {
         res.status(404)
