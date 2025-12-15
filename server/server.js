@@ -1,6 +1,9 @@
 import express from "express"
 import colors from "colors"
+import dotenv from "dotenv"
 import connectDB from "./config/dbConfig.js"
+
+dotenv.config()
 
 // Local Imports
 import errorHandler from "./middlewares/errorHandler.js"
