@@ -10,6 +10,7 @@ import adminRoutes from "./routes/adminRoutes.js"
 import productRoutes from "./routes/productRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import couponRoutes from "./routes/coupanRoutes.js"
+import virtualTryRoutes from "./routes/virtualTryRoutes.js"
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -45,6 +46,9 @@ app.use("/api/cart", cartRoutes)
 // Coupon Routes
 app.use("/api/coupon", couponRoutes)
 
+
+// Virtual Tru
+app.use("/api/virtual_try", virtualTryRoutes)
 
 // Error Handler
 app.use(errorHandler)
