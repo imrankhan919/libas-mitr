@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { registerUser } from '../features/auth/authSlice';
 
 function Register() {
 
@@ -27,6 +28,14 @@ function Register() {
     const handleSubmit = (e) => {
         e.preventDefault()
         // Register User
+
+        if (password !== confirmPassword) {
+            toast.error("Passwords Not Match!", { position: "top-center" })
+        } else {
+            dispatch(registerUser(formData))
+        }
+
+
     }
 
     useEffect(() => {
