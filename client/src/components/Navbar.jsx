@@ -37,7 +37,7 @@ const Navbar = () => {
                     {
                         user ? (<>
                             <div className='flex items-center justify-center space-x-5'>
-                                <Link to={user?.isAdmin ? "/admin" : "/profile"}> <h1>Welcome {user?.name}</h1></Link>
+                                <Link to={user?.isAdmin ? "/admin/dashboard" : "/profile"}> <h1>Welcome {user?.name}</h1></Link>
                                 <button onClick={handleLogout} className="bg-gradient-to-r from-red-600 to-red-600 text-white px-6 py-2.5 rounded-full font-medium hover:shadow-lg transition-all duration-300 cursor-pointer">Logout</button>
                             </div>
                         </>) : (<Link to={"/login"} className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:shadow-lg transition-all duration-300">

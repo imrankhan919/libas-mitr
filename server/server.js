@@ -3,8 +3,6 @@ import colors from "colors"
 import dotenv from "dotenv"
 import connectDB from "./config/dbConfig.js"
 
-dotenv.config()
-
 // Local Imports
 import errorHandler from "./middlewares/errorHandler.js"
 import authRoutes from "./routes/authRoutes.js"
@@ -15,6 +13,7 @@ import cartRoutes from "./routes/cartRoutes.js"
 import couponRoutes from "./routes/coupanRoutes.js"
 import virtualTryRoutes from "./routes/virtualTryRoutes.js"
 
+dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000
 

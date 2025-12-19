@@ -1,5 +1,8 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from "node:fs"
+import dotenv from "dotenv";
+dotenv.config();
+
 
 // Configuration
 cloudinary.config({
@@ -9,7 +12,11 @@ cloudinary.config({
 });
 
 
+
+
 const uploadToCloudinary = async (fileLink) => {
+
+
     // Upload an image
     const uploadResult = await cloudinary.uploader
         .upload(
