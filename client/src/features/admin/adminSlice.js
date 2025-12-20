@@ -75,6 +75,44 @@ const adminSlice = createSlice({
                 state.adminIsError = true
                 state.adminErrorMessage = action.payload
             })
+            .addCase(getAllProducts.pending, (state, action) => {
+                state.adminIsLoading = true
+                state.adminIsSuccess = false
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(getAllProducts.fulfilled, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = true
+                state.allProducts = action.payload
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(getAllProducts.rejected, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = false
+                state.adminIsError = true
+                state.adminErrorMessage = action.payload
+            })
+            .addCase(createProduct.pending, (state, action) => {
+                state.adminIsLoading = true
+                state.adminIsSuccess = false
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(createProduct.fulfilled, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = true
+                state.allProducts = [action.payload, ...state.allProducts]
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(createProduct.rejected, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = false
+                state.adminIsError = true
+                state.adminErrorMessage = action.payload
+            })
     }
 });
 
@@ -112,6 +150,29 @@ export const updateUser = createAsyncThunk("UPDATE/ADMIN/USER", async (userData,
     let token = thunkAPI.getState().auth.user.token
     try {
         return await adminService.userUpdate(userData, token)
+    } catch (error) {
+        let message = error.response.data.message
+        return thunkAPI.rejectWithValue(message)
+    }
+
+})
+
+// ADD PRODUCT
+export const createProduct = createAsyncThunk("ADD/ADMIN/PRODUCT", async (formData, thunkAPI) => {
+    let token = thunkAPI.getState().auth.user.token
+    try {
+        return await adminService.addProduct(formData, token)
+    } catch (error) {
+        let message = error.response.data.message
+        return thunkAPI.rejectWithValue(message)
+    }
+
+})
+
+// GET PRODUCTS
+export const getAllProducts = createAsyncThunk("GET/ADMIN/PRODUCTS", async (_, thunkAPI) => {
+    try {
+        return await adminService.getProducts()
     } catch (error) {
         let message = error.response.data.message
         return thunkAPI.rejectWithValue(message)

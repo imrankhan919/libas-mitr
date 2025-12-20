@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { LoadingScreen } from '../components/LoadingScreen';
-import { getAllOrdersForAdmin, getAllUsersForAdmin } from '../features/admin/adminSlice';
+import { getAllOrdersForAdmin, getAllProducts, getAllUsersForAdmin } from '../features/admin/adminSlice';
 
 function Dashboard() {
 
@@ -29,6 +29,7 @@ function Dashboard() {
         // Api's Fetching
         dispatch(getAllUsersForAdmin())
         dispatch(getAllOrdersForAdmin())
+        dispatch(getAllProducts())
 
 
 
