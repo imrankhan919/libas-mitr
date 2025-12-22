@@ -3,7 +3,7 @@ import Layout from '../components/Layout';
 import { Edit2, Trash2, Plus, Image } from 'lucide-react';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { toast } from 'react-toastify';
-import { createProduct, getAllProducts } from '../features/admin/adminSlice';
+import { createProduct, editProduct, getAllProducts, productUpdate } from '../features/admin/adminSlice';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { useState } from 'react';
 function Products() {
 
     const { user } = useSelector(state => state.auth)
-    const { adminIsLoading, adminIsSuccess, adminIsError, adminErrorMessage, allProducts } = useSelector(state => state.admin)
+    const { adminIsLoading, adminIsSuccess, adminIsError, adminErrorMessage, allProducts, productEdit } = useSelector(state => state.admin)
 
 
 
@@ -20,6 +20,7 @@ function Products() {
     const dispatch = useDispatch()
 
     const [formData, setFormData] = useState({
+        _id: "",
         name: "",
         description: "",
         salePrice: "",
@@ -31,7 +32,7 @@ function Products() {
     })
 
 
-    const { name, description, salePrice, originalPrice, stock, category, size, image } = formData
+    const { _id, name, description, salePrice, originalPrice, stock, category, size, image } = formData
 
     const handleChange = (e) => {
         if (e.target.name === "image") {
@@ -60,10 +61,14 @@ function Products() {
         formDataToSend.append('image', image) // This is the File object
 
 
-        // Add Product
-        dispatch(createProduct(formDataToSend))
+        !productEdit.isEdit ?
+            // Add Product
+            dispatch(createProduct(formDataToSend)) :
+            // Update Product 
+            dispatch(productUpdate(formData))
 
         setFormData({
+            _id: "",
             name: "",
             description: "",
             salePrice: "",
@@ -73,6 +78,11 @@ function Products() {
             size: "",
             image: ""
         })
+    }
+
+
+    const handleProductEdit = (product) => {
+        dispatch(editProduct(product))
     }
 
 
@@ -94,7 +104,10 @@ function Products() {
         }
 
 
-    }, [user, adminIsError, adminErrorMessage])
+        setFormData(productEdit.product)
+
+
+    }, [user, adminIsError, adminErrorMessage, productEdit])
 
 
 
@@ -116,6 +129,21 @@ function Products() {
                         <h3 className="text-lg font-bold text-gray-900 mb-6">Add / Update Product</h3>
                         <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
                             <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="productId" className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Product Id
+                                    </label>
+                                    <input
+                                        name='_id'
+                                        value={_id}
+                                        onChange={handleChange}
+                                        type="text"
+                                        disabled={true}
+                                        id="productName"
+                                        placeholder="Product Id"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-200"
+                                    />
+                                </div>
                                 <div>
                                     <label htmlFor="productName" className="block text-sm font-semibold text-gray-700 mb-2">
                                         Product Name
@@ -253,7 +281,7 @@ function Products() {
                                     className="px-6 py-2 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 transition-colors flex items-center gap-2"
                                 >
                                     <Plus className="w-4 h-4" />
-                                    Add Product
+                                    {productEdit.isEdit ? "Update Product" : "Add Product"}
                                 </button>
                                 {/* <button
                                     type="button"
@@ -313,7 +341,7 @@ function Products() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <button className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors">
+                                                        <button onClick={() => handleProductEdit(product)} className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors">
                                                             <Edit2 className="w-4 h-4" />
                                                         </button>
                                                         <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">

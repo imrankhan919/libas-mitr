@@ -34,6 +34,7 @@ function Dashboard() {
 
 
         if (adminIsError && adminErrorMessage) {
+            navigate("/")
             toast.error(adminErrorMessage, { position: "top-center" })
         }
 

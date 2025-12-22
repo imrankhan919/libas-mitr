@@ -9,13 +9,21 @@ const initialState = {
     allUsers: [],
     allProducts: [],
     allOrders: [],
-    allCoupons: []
+    allCoupons: [],
+    productEdit: { product: {}, isEdit: false }
 }
 
 const adminSlice = createSlice({
     name: 'admin',
     initialState,
-    reducers: {},
+    reducers: {
+        editProduct: (state, action) => {
+            return {
+                ...state,
+                productEdit: { product: action.payload, isEdit: true }
+            }
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(getAllUsersForAdmin.pending, (state, action) => {
@@ -113,10 +121,30 @@ const adminSlice = createSlice({
                 state.adminIsError = true
                 state.adminErrorMessage = action.payload
             })
+            .addCase(productUpdate.pending, (state, action) => {
+                state.adminIsLoading = true
+                state.adminIsSuccess = false
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(productUpdate.fulfilled, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = true
+                state.allProducts = state.allProducts.map(product => product._id === action.payload._id ? action.payload : product)
+                state.productEdit = { product: {}, isEdit: false }
+                state.adminIsError = false
+                state.adminErrorMessage = ""
+            })
+            .addCase(productUpdate.rejected, (state, action) => {
+                state.adminIsLoading = false
+                state.adminIsSuccess = false
+                state.adminIsError = true
+                state.adminErrorMessage = action.payload
+            })
     }
 });
 
-export const { } = adminSlice.actions
+export const { editProduct } = adminSlice.actions
 
 export default adminSlice.reducer
 
@@ -162,6 +190,19 @@ export const createProduct = createAsyncThunk("ADD/ADMIN/PRODUCT", async (formDa
     let token = thunkAPI.getState().auth.user.token
     try {
         return await adminService.addProduct(formData, token)
+    } catch (error) {
+        let message = error.response.data.message
+        return thunkAPI.rejectWithValue(message)
+    }
+
+})
+
+// UPDATE PRODUCT
+export const productUpdate = createAsyncThunk("UPDATE/ADMIN/PRODUCT", async (formData, thunkAPI) => {
+    let token = thunkAPI.getState().auth.user.token
+    let productId = thunkAPI.getState().admin.productEdit.product._id
+    try {
+        return await adminService.updateProduct(formData, productId, token)
     } catch (error) {
         let message = error.response.data.message
         return thunkAPI.rejectWithValue(message)

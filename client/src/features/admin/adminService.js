@@ -45,7 +45,6 @@ const userUpdate = async (userData, token) => {
 
 
 const addProduct = async (formData, token) => {
-
     let options = {
         headers: {
             authorization: `Bearer ${token}`
@@ -58,6 +57,20 @@ const addProduct = async (formData, token) => {
 
 }
 
+const updateProduct = async (formData, productId, token) => {
+
+    let options = {
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    }
+
+
+    const response = await axios.put(API_URL + "/product/" + productId, formData, options)
+    return response.data
+
+}
+
 
 const getProducts = async () => {
     const response = await axios.get("/api/products")
@@ -65,7 +78,7 @@ const getProducts = async () => {
 }
 
 
-const adminService = { fetchAllUsers, fetchAllOrders, userUpdate, getProducts, addProduct }
+const adminService = { fetchAllUsers, fetchAllOrders, userUpdate, getProducts, addProduct, updateProduct }
 
 
 export default adminService
