@@ -110,10 +110,7 @@ const updateOrder = async (req, res) => {
         throw new Error('Order Not Found!')
     }
 
-    if (myOrder.status === "dispatched") {
-        res.status(409)
-        throw new Error("Order is already dispatched")
-    }
+
 
 
 
@@ -135,8 +132,16 @@ const updateOrder = async (req, res) => {
         })
 
         updatedOrder = await Order.findByIdAndUpdate(orderId, { status: "dispatched" }, { new: true }).populate("products.product")
-    } else {
-        updatedOrder = await Order.findByIdAndUpdate(orderId, { status: status === "delivered" ? "delivered" : "cancelled" }, { new: true })
+    } else if (status === "delivered") {
+        updatedOrder = await Order.findByIdAndUpdate(orderId, { status: "delivered" }, { new: true })
+    } else if (status === "cancelled") {
+        if (myOrder.status === "dispatched") {
+            res.status(409)
+            throw new Error("Order is already dispatched")
+        } else {
+            updatedOrder = await Order.findByIdAndUpdate(orderId, { status: "cancelled" }, { new: true })
+        }
+
     }
 
     if (!updatedOrder) {
