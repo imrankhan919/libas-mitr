@@ -30,7 +30,7 @@ const Navbar = () => {
                     </Link>
                     <div className="hidden md:flex items-center gap-8">
                         <Link to="/" className="text-gray-900 hover:text-violet-600 transition-colors duration-300 font-medium">Home</Link>
-                        <Link to="/collections" className="text-gray-700 hover:text-violet-600 transition-colors duration-300">Collections</Link>
+                        <Link to="/collections" className={`text-gray-700 hover:text-violet-600 transition-colors duration-300 ${location.pathname.includes('collection') ? 'font-bold' : 'font-medium'} `}>Collections</Link>
                         <Link to="/about" className="text-gray-700 hover:text-violet-600 transition-colors duration-300">About</Link>
                         <Link to="/contact" className="text-gray-700 hover:text-violet-600 transition-colors duration-300">Contact</Link>
                     </div>

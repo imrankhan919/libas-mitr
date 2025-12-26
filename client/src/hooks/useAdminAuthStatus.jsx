@@ -12,7 +12,7 @@ const useAdminAuthStatus = () => {
 
     useEffect(() => {
 
-        user.isAdmin ? setIsAdmin(true) : setIsAdmin(false)
+        user?.isAdmin ? setIsAdmin(true) : setIsAdmin(false)
         setAuthLoading(false)
 
     }, [user])
