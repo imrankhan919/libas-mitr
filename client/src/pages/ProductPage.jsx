@@ -3,18 +3,26 @@ import { LoadingScreen } from '../components/LoadingScreen'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProduct } from '../features/products/productSlice'
 import { toast } from 'react-toastify'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { addItemToCart } from '../features/cart/cartSlice'
 
 const ProductPage = () => {
 
     const { product, productSuccess, productLoading, productError, productErrorMessage } = useSelector(state => state.product)
 
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const { pid } = useParams()
 
 
     const customStyle = {
         backgroundImage: `url(${product.image})`,
+    }
+
+
+    const handleAddToCart = (cartData) => {
+        dispatch(addItemToCart(cartData))
+        navigate("/cart")
     }
 
 
@@ -87,7 +95,11 @@ const ProductPage = () => {
 
                             </div>
                         </div>
-
+                        <div className="flex gap-4 mb-8">
+                            <button onClick={() => handleAddToCart({ productId: product._id, qty: 1 })} className="cursor-pointer flex-1 border-2 border-neutral-900 text-neutral-900 py-4 rounded-xl font-semibold hover:bg-neutral-900 hover:text-white transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
 
                         <div className="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-300 rounded-3xl p-6 mb-8">
                             <div className="text-center mb-4">
@@ -111,24 +123,16 @@ const ProductPage = () => {
                                 </label>
                             </div>
 
+
+
+
                             <div className="flex gap-3">
                                 <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all shadow-md">
                                     Upload & Try Virtually
                                 </button>
-                                <button className="flex-1 border-2 border-violet-600 text-violet-600 py-3.5 rounded-xl font-semibold hover:bg-violet-50 transition-all">
-                                    Use Sample Model
-                                </button>
                             </div>
                         </div>
 
-                        <div className="flex gap-4 mb-8">
-                            <button className="flex-1 bg-neutral-900 text-white py-4 rounded-xl font-semibold hover:bg-neutral-800 transition-all shadow-md">
-                                Try Virtual Fit
-                            </button>
-                            <button className="flex-1 border-2 border-neutral-900 text-neutral-900 py-4 rounded-xl font-semibold hover:bg-neutral-900 hover:text-white transition-all">
-                                Add to Cart
-                            </button>
-                        </div>
 
                         <div className="bg-white rounded-3xl shadow-md p-6 mb-8">
                             <h3 className="text-lg font-bold text-neutral-900 mb-4">Product Details</h3>

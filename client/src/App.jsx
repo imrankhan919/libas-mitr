@@ -18,6 +18,7 @@ import Reviews from "./pages/Reviews"
 import Orders from "./pages/Orders"
 import Coupons from "./pages/Coupons"
 import PrivateAdminComponent from "./components/PrivateAdminComponent"
+import CartBtn from "./components/CartBtn"
 
 
 const App = () => {
@@ -41,6 +42,7 @@ const App = () => {
         </Route>
       </Routes>
       <ToastContainer />
+      <CartBtn />
       <Footer />
     </Router>
   )

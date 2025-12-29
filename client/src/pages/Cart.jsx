@@ -1,8 +1,42 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCartItems } from "../features/cart/cartSlice";
+import { toast } from "react-toastify";
+import { LoadingScreen } from "../components/LoadingScreen";
+import CartItem from "../components/CartItem";
+
 function Cart() {
+
+    const { cart, cartLoading, cartSuccess, cartError, cartErrorMessage } = useSelector(state => state.cart)
+
+    const dispatch = useDispatch()
+
+    const { products } = cart
+
+    useEffect(() => {
+
+        // Api Call
+        dispatch(getCartItems())
+
+        if (cartError && cartErrorMessage) {
+            toast.error(cartErrorMessage, { position: "top-center" })
+        }
+
+    }, [])
+
+
+    if (cartLoading || cart.length === 0) {
+        return (
+            <LoadingScreen loadingMessage={"Cart Is Loading..."} />
+        )
+    }
+
+
+
+
+
     return (
         <div className="min-h-screen bg-stone-50">
-
-
             <div className="max-w-7xl mx-auto px-4 py-6">
                 <nav className="text-sm text-gray-600 mb-6">
                     <span>Home</span> <span className="mx-2">/</span>
@@ -14,50 +48,8 @@ function Cart() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                         <div className="space-y-4">
-                            {[1, 2, 3].map((item) => (
-                                <div key={item} className="bg-white rounded-3xl shadow-md p-6 hover:shadow-lg transition-shadow">
-                                    <div className="flex flex-col sm:flex-row gap-6">
-                                        <div className="w-full sm:w-32 h-40 bg-gray-200 rounded-2xl flex-shrink-0"></div>
-
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h3 className="text-lg font-bold text-neutral-900 mb-1">Elegant Summer Dress</h3>
-                                                    <p className="text-sm text-gray-600">Dresses</p>
-                                                </div>
-                                                <button className="text-gray-400 hover:text-red-500 transition-colors">
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div>
-                                                    <p className="text-xs text-gray-500 mb-1">Size</p>
-                                                    <p className="text-sm font-semibold text-neutral-900">L</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 mb-1">Color</p>
-                                                    <div className="w-6 h-6 bg-black rounded-full border-2 border-gray-300"></div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center border-2 border-gray-300 rounded-xl overflow-hidden">
-                                                    <button className="px-4 py-2 hover:bg-gray-100 transition-colors">
-                                                        <span className="text-lg font-semibold">−</span>
-                                                    </button>
-                                                    <span className="px-4 py-2 font-semibold text-neutral-900 border-x-2 border-gray-300">1</span>
-                                                    <button className="px-4 py-2 hover:bg-gray-100 transition-colors">
-                                                        <span className="text-lg font-semibold">+</span>
-                                                    </button>
-                                                </div>
-                                                <p className="text-2xl font-bold text-neutral-900">$89.99</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            {products?.map((item) => (
+                                <CartItem key={item.product._id} item={item} />
                             ))}
                         </div>
 
