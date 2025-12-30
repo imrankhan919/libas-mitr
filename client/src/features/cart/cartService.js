@@ -10,7 +10,6 @@ const addToCart = async (token, cartData) => {
 
 
     const response = await axios.post("/api/cart", cartData, options)
-    console.log(response.data)
     return response.data
 
 
@@ -42,13 +41,43 @@ const removeFromCart = async (token, productId) => {
 
 
     const response = await axios.delete("/api/cart/" + productId, options)
-    console.log(response.data)
     return response.data
 
 
 }
 
 
-const cartService = { addToCart, getCart, removeFromCart }
+const updateCart = async (token, cartData) => {
+    let options = {
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    }
+
+
+    const response = await axios.put("/api/cart/", cartData, options)
+    return response.data
+}
+
+
+const applyCoupon = async (token, coupanCode) => {
+
+
+
+    let options = {
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    }
+
+    const response = await axios.post("/api/coupon", coupanCode, options)
+    return response.data
+
+
+}
+
+
+
+const cartService = { addToCart, getCart, removeFromCart, updateCart, applyCoupon }
 
 export default cartService
