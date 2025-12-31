@@ -2,21 +2,26 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { applyCouponOnCart } from '../features/cart/cartSlice'
 import { toast } from 'react-toastify'
+import { checkoutWithOrder } from '../features/order/orderSlice'
+import { useNavigate } from 'react-router-dom'
 
 const OrderSummary = ({ cart }) => {
 
+    const { user } = useSelector(state => state.auth)
     const { coupon, cartLoading, cartSuccess, couponError, couponErrorMessage } = useSelector(state => state.cart)
-
+    const { order, orderSuccess, orderError, orderLoading, orderErrorMessage } = useSelector(state => state.order)
 
     const [couponCode, setCouponCode] = useState(coupon ? coupon.coupanCode : "")
+    const [shippingAddress, setShippingAddress] = useState(user.address)
 
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
 
 
     let subTotal = cart.products.reduce((acc, item) => acc + item.product.salePrice * item.qty, 0)
-    let shippingChrages = subTotal >= 2000 ? 0 : subTotal === 0 ? 0 : 50
-    let taxPrice = (subTotal + shippingChrages) * 5 / 100
+    let shippingChrages = 0
+    let taxPrice = 0
     let total = subTotal + shippingChrages + taxPrice
     let couponDiscount = coupon ? subTotal * coupon.coupanDiscount / 100 : 0
 
@@ -30,11 +35,24 @@ const OrderSummary = ({ cart }) => {
     }
 
 
+    const handlePlaceOrder = (orderDetails) => {
+        dispatch(checkoutWithOrder(orderDetails))
+    }
+
+
     useEffect(() => {
-        if (couponError && couponErrorMessage) {
+
+        if (orderSuccess && order) {
+            navigate("/auth/profile")
+        }
+
+
+        if (couponError && couponErrorMessage || orderError && orderErrorMessage) {
             toast.error(couponErrorMessage, { position: "top-center" })
         }
-    }, [couponError, couponErrorMessage, coupon])
+
+
+    }, [couponError, couponErrorMessage, orderError, orderErrorMessage, orderSuccess, order])
 
 
 
@@ -80,12 +98,30 @@ const OrderSummary = ({ cart }) => {
                     }
                 </div>
 
+                <div className="mb-6">
+                    <label htmlFor="coupon" className="block text-sm font-semibold text-neutral-900 mb-2">
+                        Shipping Address
+                    </label>
+                    <div className="flex gap-2 flex-col">
+                        <input
+                            value={shippingAddress}
+                            onChange={(e) => setShippingAddress(e.target.value)}
+                            type="text"
+                            id="shippingAddress"
+                            placeholder="Enter shipping adress"
+                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-500 mt-2">You can change shipping address here</p>
+                    </div>
+
+                </div>
+
                 <div className="flex justify-between mb-6 pt-6 border-t border-gray-200">
                     <span className="text-lg font-bold text-neutral-900">Total</span>
                     <span className="text-2xl font-bold text-neutral-900">₹{total - couponDiscount}</span>
                 </div>
 
-                <button className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg mb-3">
+                <button onClick={() => handlePlaceOrder({ shippingAddress: shippingAddress, coupon: coupon?.coupanCode ? coupon?.coupanCode : "" })} className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white py-4 rounded-xl font-bold hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg mb-3">
                     Proceed to Checkout
                 </button>
 

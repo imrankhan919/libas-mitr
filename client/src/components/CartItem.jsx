@@ -27,6 +27,7 @@ const CartItem = ({ item }) => {
 
 
 
+
     return (
         <div className="bg-white rounded-3xl shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex flex-col sm:flex-row gap-6">

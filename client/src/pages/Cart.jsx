@@ -8,7 +8,7 @@ import OrderSummary from "../components/OrderSummary";
 
 function Cart() {
 
-    const { cart, cartLoading, cartSuccess, cartError, cartErrorMessage } = useSelector(state => state.cart)
+    const { cart, cartLoading, cartSuccess, cartError, cartMessage } = useSelector(state => state.cart)
 
     const dispatch = useDispatch()
 
@@ -22,11 +22,11 @@ function Cart() {
         }
 
 
-        if (cartError && cartErrorMessage) {
-            toast.error(cartErrorMessage, { position: "top-center" })
+        if (cartError && cartMessage) {
+            toast.error(cartMessage, { position: "top-center" })
         }
 
-    }, [cartError, cartErrorMessage])
+    }, [cartError, cartMessage])
 
 
     if (!cart || cartLoading) {
