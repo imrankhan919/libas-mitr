@@ -64,7 +64,7 @@ const placeOrder = async (req, res) => {
 const cancelOrder = async (req, res) => {
     const orderId = req.params.oid
 
-    const myOrder = await Order.findById(orderId).populate('cart').populate('user')
+    const myOrder = await Order.findById(orderId).populate('products.product').populate('user')
 
     if (!myOrder) {
         res.status(404)
