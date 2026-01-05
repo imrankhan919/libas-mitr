@@ -46,7 +46,6 @@ const cancelOrder = async (token, orderId) => {
     }
 
     const response = await axios.put(`${API_URL}/${orderId}`, { status: "cancelled" }, options)
-    console.log(response.data)
     return response.data
 
 }

@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react'
 import { LoadingScreen } from '../components/LoadingScreen'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProduct } from '../features/products/productSlice'
+import { getProduct, getProductReviews } from '../features/products/productSlice'
 import { toast } from 'react-toastify'
 import { useNavigate, useParams } from 'react-router-dom'
 import { addItemToCart } from '../features/cart/cartSlice'
+import { ProductReviews } from '../components/ProductReviews'
+import { AddReviewForm } from '../components/AddReview'
 
 const ProductPage = () => {
 
-    const { product, productSuccess, productLoading, productError, productErrorMessage } = useSelector(state => state.product)
+    const { user } = useSelector(state => state.auth)
+    const { product, productSuccess, productReviews, productLoading, productError, productErrorMessage } = useSelector(state => state.product)
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -26,11 +29,14 @@ const ProductPage = () => {
     }
 
 
+    let aveRating = productReviews.reduce((acc, product) => acc + product.rating, 0) / productReviews.length
+
 
     useEffect(() => {
 
         // Api Call
         dispatch(getProduct(pid))
+        dispatch(getProductReviews(pid))
 
 
         if (productError && productErrorMessage) {
@@ -69,18 +75,23 @@ const ProductPage = () => {
                     <div>
                         <div className="mb-6">
                             <span className="inline-block bg-violet-100 text-violet-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-                                Dresses
+                                {product.category}
                             </span>
                             <h1 className="text-4xl font-bold text-neutral-900 mb-4">{product.name}</h1>
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="flex text-yellow-400">
-                                    <span>★</span>
-                                    <span>★</span>
-                                    <span>★</span>
-                                    <span>★</span>
-                                    <span>☆</span>
+                                <div className="mt-1 flex gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg
+                                            key={i}
+                                            className={`h-3.5 w-3.5 ${i < aveRating ? "fill-yellow-400 text-yellow-400" : "fill-slate-200 text-slate-200"
+                                                }`}
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
                                 </div>
-                                <span className="text-sm text-gray-600">(127 reviews)</span>
+                                <span className="text-sm text-gray-600">({productReviews.length} Reviews)</span>
                             </div>
                             <p className="text-4xl font-bold text-neutral-900 mb-6">₹{product.salePrice}</p>
                             <p className="text-gray-700 leading-relaxed">
@@ -168,6 +179,12 @@ const ProductPage = () => {
                         </div>
                     </div>
                 </div>
+                <ProductReviews productReviews={productReviews} />
+                {
+
+                    user && <AddReviewForm pid={pid} />
+
+                }
             </div>
         </div>
     )

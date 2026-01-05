@@ -3,7 +3,7 @@ import Review from "../models/reviewModel.js"
 
 const getReviews = async (req, res) => {
     const productId = req.product
-    let reviews = await Review.find({ product: productId })
+    let reviews = await Review.find({ product: productId }).populate("user")
 
     if (!reviews) {
         res.status(404)
