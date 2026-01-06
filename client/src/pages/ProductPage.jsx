@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { LoadingScreen } from '../components/LoadingScreen'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProduct, getProductReviews } from '../features/products/productSlice'
@@ -7,20 +7,64 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { addItemToCart } from '../features/cart/cartSlice'
 import { ProductReviews } from '../components/ProductReviews'
 import { AddReviewForm } from '../components/AddReview'
+import { tryCloths } from '../features/virtualTry/virtualTrySlice'
 
 const ProductPage = () => {
 
+
+
+
     const { user } = useSelector(state => state.auth)
     const { product, productSuccess, productReviews, productLoading, productError, productErrorMessage } = useSelector(state => state.product)
+    const { virtualTry, virtualTryLoading, virtualSuccess, virtualTryError, virtualTryErrorMessage } = useSelector(state => state.virtualTry)
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { pid } = useParams()
 
 
+
     const customStyle = {
-        backgroundImage: `url(${product.image})`,
+        backgroundImage: virtualTry ? `url(${virtualTry?.output_url})` : `url(${product.image})`,
     }
+
+
+    const [formData, setFormData] = useState({
+        person_url: "",
+        cloth_url: product.image,
+        garment_des: product.description
+    })
+
+
+
+    const { person_url, cloth_url, garment_des } = formData
+
+    const handleChange = (e) => {
+        if (e.target.name === "person_url") {
+            const file = e.target.files[0]
+            if (file) {
+                console.log("File selected:", file)  // Debug log
+                setFormData({ ...formData, person_url: file })
+            }
+        }
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+
+        const formDataToSend = new FormData()
+        formDataToSend.append('person_url', person_url)
+        formDataToSend.append('cloth_url', product.image)
+        formDataToSend.append('garment_des', product.description)
+
+        // Debug: Check what's in FormData
+        for (let pair of formDataToSend.entries()) {
+            console.log(pair[0] + ': ', pair[1])
+        }
+
+        dispatch(tryCloths(formDataToSend))
+    }
+
 
 
     const handleAddToCart = (cartData) => {
@@ -38,8 +82,11 @@ const ProductPage = () => {
         dispatch(getProduct(pid))
         dispatch(getProductReviews(pid))
 
+        if (virtualSuccess) {
+            toast.success("Looking Great!", { position: "top-center" })
+        }
 
-        if (productError && productErrorMessage) {
+        if (productError && productErrorMessage || virtualTryError && virtualTryErrorMessage) {
             toast.error(productErrorMessage, { position: "top-center" })
         }
 
@@ -47,9 +94,9 @@ const ProductPage = () => {
     }, [productError, productErrorMessage, pid])
 
 
-    if (productLoading) {
+    if (productLoading || virtualTryLoading) {
         return (
-            <LoadingScreen loadingMessage={"Products Message"} />
+            <LoadingScreen loadingMessage={"Loading Your Experience...."} />
         )
     }
 
@@ -112,37 +159,39 @@ const ProductPage = () => {
                             </button>
                         </div>
 
-                        <div className="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-300 rounded-3xl p-6 mb-8">
-                            <div className="text-center mb-4">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-2xl mb-4">
-                                    <svg className="w-8 h-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                        <form onSubmit={handleSubmit} encType="multipart/form-data" >
+                            <div className="bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-300 rounded-3xl p-6 mb-8">
+                                <div className="text-center mb-4">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-2xl mb-4">
+                                        <svg className="w-8 h-8 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-neutral-900 mb-2">Upload Your Photo for Virtual Try-On</h3>
+                                    <p className="text-sm text-gray-600 mb-6">Front-facing photo works best for accurate results</p>
                                 </div>
-                                <h3 className="text-xl font-bold text-neutral-900 mb-2">Upload Your Photo for Virtual Try-On</h3>
-                                <p className="text-sm text-gray-600 mb-6">Front-facing photo works best for accurate results</p>
+
+                                <div className="bg-white border-2 border-dashed border-violet-300 rounded-2xl p-8 mb-4 text-center hover:border-violet-500 transition-colors cursor-pointer">
+                                    <input required onChange={handleChange} name='person_url' type="file" accept="image/png,image/jpeg,image/webp" className="" id="upload-photo" />
+                                    <label htmlFor="upload-photo" className="cursor-pointer">
+                                        <svg className="w-12 h-12 text-violet-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p className="text-sm font-medium text-neutral-900 mb-1">Click to upload or drag and drop</p>
+                                        <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                                    </label>
+                                </div>
+
+
+
+
+                                <div className="flex gap-3">
+                                    <button type='submit' className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all shadow-md">
+                                        Upload & Try Virtually
+                                    </button>
+                                </div>
                             </div>
-
-                            <div className="bg-white border-2 border-dashed border-violet-300 rounded-2xl p-8 mb-4 text-center hover:border-violet-500 transition-colors cursor-pointer">
-                                <input type="file" accept="image/*" className="hidden" id="upload-photo" />
-                                <label htmlFor="upload-photo" className="cursor-pointer">
-                                    <svg className="w-12 h-12 text-violet-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    <p className="text-sm font-medium text-neutral-900 mb-1">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
-                                </label>
-                            </div>
-
-
-
-
-                            <div className="flex gap-3">
-                                <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all shadow-md">
-                                    Upload & Try Virtually
-                                </button>
-                            </div>
-                        </div>
+                        </form>
 
 
                         <div className="bg-white rounded-3xl shadow-md p-6 mb-8">

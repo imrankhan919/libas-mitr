@@ -1,5 +1,7 @@
+import fs from "node:fs"
 import Replicate from "replicate";
 import User from "../models/userModel.js";
+import uploadToCloudinary from "../middlewares/cloudinaryMiddleware.js";
 
 
 const replicate = new Replicate({
@@ -10,12 +12,21 @@ const replicate = new Replicate({
 export const virtualTry = async (req, res) => {
 
     try {
-        const { person_url, cloth_url, garment_des } = req.body
+        const { cloth_url, garment_des } = req.body
 
-        if (!person_url || !cloth_url || !garment_des) {
+        console.log(req.file)
+
+        if (!cloth_url || !garment_des) {
             res.status(409)
             throw new Error("Please Enter All Details!")
         }
+
+        //   Upload To Cloudinary
+        let imagePath = await uploadToCloudinary(req.file.path)
+
+        // Remove image from our server
+        fs.unlinkSync(req.file.path)
+
 
         // Check if user have credits
         let user = await User.findById(req.user._id)
@@ -26,9 +37,10 @@ export const virtualTry = async (req, res) => {
         } else {
             const input = {
                 garm_img: cloth_url,
-                human_img: person_url,
+                human_img: imagePath.secure_url,
                 garment_des: garment_des
             };
+
 
             const output = await replicate.run(
                 "cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985",
@@ -49,6 +61,7 @@ export const virtualTry = async (req, res) => {
 
     } catch (error) {
         res.status(409)
+        console.log(error.message)
         throw new Error("Currently Virtual Try Is Not Available")
     }
 
