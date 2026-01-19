@@ -4,8 +4,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node --watch server/server.js"
+    "server": "node server/server.js",
+    "client": "cd client && npm run dev",
+    "build": "npm install && cd client && npm install --legacy-peer-deps && npm run build",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "prod": "npm run server"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +17,7 @@
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "colors": "^1.4.0",
+    "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

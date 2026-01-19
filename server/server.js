@@ -1,6 +1,8 @@
 import express from "express"
 import colors from "colors"
 import dotenv from "dotenv"
+import path from 'path'
+import { fileURLToPath } from 'url'
 import connectDB from "./config/dbConfig.js"
 
 // Local Imports
@@ -12,8 +14,12 @@ import productRoutes from "./routes/productRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import couponRoutes from "./routes/coupanRoutes.js"
 import virtualTryRoutes from "./routes/virtualTryRoutes.js"
-
 dotenv.config()
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+
 const app = express()
 const PORT = process.env.PORT || 5000
 
@@ -23,12 +29,6 @@ connectDB()
 // Body-Parser
 app.use(express.json())
 app.use(express.urlencoded())
-
-app.get("/", (req, res) => {
-    res.json({
-        message: "WELCOME TO LIBAS MITR API 1.0"
-    })
-})
 
 // Auth Routes
 app.use("/api/auth", authRoutes)
@@ -49,8 +49,36 @@ app.use("/api/cart", cartRoutes)
 app.use("/api/coupon", couponRoutes)
 
 
-// Virtual Tru
+// Virtual Try
 app.use("/api/virtual_try", virtualTryRoutes)
+
+
+
+// 4. Correct Path Resolution for Nested Folders
+// Since this file is in /server, we go UP one level to reach the root, then into /client/dist
+const buildPath = path.resolve(__dirname, '../client/dist');
+
+// 5. Static File Serving & SPA Routing
+if (process.env.NODE_ENV === "production") {
+    // Serve static files from the build directory
+    app.use(express.static(buildPath));
+
+    // Express v5 requires a named parameter for wildcards (/*splat)
+    app.get('/*splat', (req, res) => {
+        res.sendFile(path.join(buildPath, 'index.html'), (err) => {
+            if (err) {
+                // If index.html is missing, this provides a clearer error
+                res.status(500).send("Build file index.html not found. Ensure you ran 'npm run build' in the client folder.");
+            }
+        });
+    });
+} else {
+    app.get("/", (req, res) => {
+        res.send("API is running... (Development Mode)");
+    });
+}
+
+
 
 // Error Handler
 app.use(errorHandler)
